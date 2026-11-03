@@ -1,0 +1,54 @@
+# YADRO — docker compose for a bot host.
+#
+#   cp .env.example .env
+#   docker compose up -d --build
+#   docker compose logs -f tgws
+#
+# Bot on the same network:
+#   mtproto  tgws:1443  (secret from TG_WS_PROXY_SECRET)
+#   socks5   tgws:1080
+# Keep published ports off the public firewall unless you serve others.
+
+services:
+  tgws:
+    build: .
+    image: yadro:latest
+    container_name: yadro
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      TG_WS_PROXY_HOST: ${TG_WS_PROXY_HOST:-0.0.0.0}
+      TG_WS_PROXY_PORT: ${TG_WS_PROXY_PORT:-1443}
+      TG_WS_PROXY_SECRET: ${TG_WS_PROXY_SECRET:-}
+      TG_WS_PROXY_SECRETS: ${TG_WS_PROXY_SECRETS:-}
+      TG_WS_PROXY_DC_IPS: ${TG_WS_PROXY_DC_IPS:-2:149.154.167.220 4:149.154.167.220}
+      TG_WS_PROXY_FTLS_DOMAIN: ${TG_WS_PROXY_FTLS_DOMAIN:-cloudflare.com}
+      TG_WS_PROXY_SOCKS5_ENABLED: ${TG_WS_PROXY_SOCKS5_ENABLED:-True}
+      TG_WS_PROXY_SOCKS5_HOST: ${TG_WS_PROXY_SOCKS5_HOST:-0.0.0.0}
+      TG_WS_PROXY_SOCKS5_PORT: ${TG_WS_PROXY_SOCKS5_PORT:-1080}
+      TG_WS_PROXY_CF_WORKER: ${TG_WS_PROXY_CF_WORKER:-}
+      TG_WS_PROXY_NO_SECURE: ${TG_WS_PROXY_NO_SECURE:-False}
+    ports:
+      - "127.0.0.1:1443:1443"
+      - "127.0.0.1:1080:1080"
+    networks: [botnet]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket;s=socket.create_connection(('127.0.0.1',1080),3);s.close()\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # bot:
+  #   build: ./my-bot
+  #   restart: unless-stopped
+  #   environment:
+  #     TGWS_SOCKS5: tgws:1080
+  #     TGWS_MTPROTO_HOST: tgws
+  #     TGWS_MTPROTO_PORT: "1443"
+  #   depends_on: [tgws]
+  #   networks: [botnet]
+
+networks:
+  botnet:
+    driver: bridge

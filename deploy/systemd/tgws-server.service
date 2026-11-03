@@ -1,0 +1,29 @@
+[Unit]
+Description=tg-ws-proxy-server (MTProto over WebSocket bridge)
+Documentation=https://github.com/Flowseal/tg-ws-proxy
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Requires python deps installed system-wide or in a venv; see docs/DEPLOY.md
+User=tgws
+Group=tgws
+WorkingDirectory=/opt/tg-ws-proxy-server
+ExecStart=/opt/tg-ws-proxy-server/.venv/bin/tgws-server run -c /etc/tgws-server/tgws-server.yaml
+Restart=always
+RestartSec=3
+
+# hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/log/tgws-server
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

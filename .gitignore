@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.spec.bak
+venv/
+.venv/
+
+# PyInstaller
+*.manifest
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+/icon.icns
+
+# Tests / tooling
+.pytest_cache/
+.ruff_cache/
+
+# Rust
+rust/target/
+
+# Local configs with secrets
+tgws-server.yaml
+tgws-server.json
+*.session
+*.session-journal
+.env
+.local/
